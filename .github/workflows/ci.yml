@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DEPS: >-
+    cmake ninja-build g++ pkg-config libvterm-dev
+    libgtk-4-dev libvte-2.91-gtk4-dev
+    xvfb xdotool vim neovim ripgrep
+
+jobs:
+  build:
+    # libmyrcp and libmyrcp-gtk with the demo, every test, and a stripped install.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends $DEPS
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build (terminal, with the demo)
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DMYRCP_DEMO=ON
+          cmake --build build
+      - name: Build (GTK, with the demo)
+        run: |
+          cmake -S . -B build-gtk -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo -DMYRCP_GTK=ON -DMYRCP_DEMO=ON
+          cmake --build build-gtk
+      - name: Unit tests
+        run: build/rcp_tests
+      - name: Python tests (the SDK, the demo in a pty, the GTK workbench under Xvfb)
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --quiet -e 'python[test]'
+          cd python && ../.venv/bin/pytest -q -rs
+      - name: Release build and install
+        run: |
+          cmake -S . -B build-release -G Ninja -DCMAKE_BUILD_TYPE=Release -DMYRCP_GTK=ON
+          cmake --build build-release
+          cmake --install build-release --strip --prefix "myrcp-$VERSION"
+          tar czf "myrcp-$VERSION-linux-x86_64.tar.gz" "myrcp-$VERSION"
+          "myrcp-$VERSION/bin/myrcp" --version
+        env:
+          VERSION: ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
+      - name: The installed library from a consumer (examples/demo with find_package)
+        run: |
+          prefix=$(ls -d myrcp-*/ | head -1)
+          cmake -S examples/demo -B build-consumer -G Ninja -DCMAKE_PREFIX_PATH="$PWD/$prefix"
+          cmake --build build-consumer
+          XDG_STATE_HOME=$RUNNER_TEMP build-consumer/myrcp-demo --list
+      - uses: actions/upload-artifact@v4
+        with:
+          name: myrcp-linux-x86_64
+          path: myrcp-*-linux-x86_64.tar.gz
+          if-no-files-found: error
+
+  asan:
+    # The unit tests under AddressSanitizer and UBSan.
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends cmake ninja-build g++ pkg-config libvterm-dev
+      - name: Build and test
+        run: |
+          cmake -S . -B build-asan -G Ninja -DCMAKE_BUILD_TYPE=Debug -DMYRCP_SANITIZE=ON
+          cmake --build build-asan
+          build-asan/rcp_tests
+
+  release:
+    # A tag v*: the install tarball attached to a GitHub release of that tag.
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [build, asan]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: myrcp-linux-x86_64
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" myrcp-*.tar.gz --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
