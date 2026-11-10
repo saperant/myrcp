@@ -1,0 +1,106 @@
+[plugin]
+id = "demo"
+name = "Demo"
+module = "myrcp_demo.plugin"
+
+[[views]]
+id = "demo.files"
+title = "Files"
+startup = true
+
+[[views]]
+id = "demo.jobs"
+title = "Jobs"
+startup = true
+region = "bottom"  # below the main area, when the terminal has the rows
+
+[[views]]
+id = "demo.table"
+title = "Folder table"  # Views: Folder table, or the palette
+
+[[preferences]]
+id = "hidden"
+title = "Show dotfiles"
+type = "bool"
+description = "Whether Files lists names starting with a dot when it opens (the . key toggles them)."
+
+[[preferences]]
+id = "start"
+title = "Start folder"
+description = "The folder Files opens in. Empty: the working directory."
+
+[[commands]]
+id = "demo.files.up"
+title = "Files: Parent directory"
+key = "backspace"
+view = "demo.files"
+
+[[commands]]
+id = "demo.files.hidden"
+title = "Files: Toggle hidden files"
+key = "."
+view = "demo.files"
+
+[[commands]]
+id = "demo.files.edit"
+title = "Files: Open in editor"
+key = "e"
+view = "demo.files"
+
+[[commands]]
+id = "demo.files.todos"
+title = "Files: Find TODOs (problem markers)"
+key = "t"
+view = "demo.files"
+
+[[commands]]
+id = "demo.jobs.start"
+title = "Jobs: Start a job"
+key = "s"
+view = "demo.jobs"
+
+[[commands]]
+id = "demo.jobs.cancel"
+title = "Jobs: Cancel running jobs"
+key = "c"
+view = "demo.jobs"
+
+[[commands]]
+id = "demo.hello"
+title = "Demo: Say hello"
+
+# ---- the gallery (gallery.py) ------------------------------------------------------------
+
+[[views]]
+id = "demo.widgets"
+title = "Widgets"  # every widget of the UI IR
+
+[[views]]
+id = "demo.note"  # demo.note#<colour>: a view with instances
+title = "Note"
+
+[[commands]]
+id = "demo.console"
+title = "Demo: Run a broken script in a Console"
+
+[[commands]]
+id = "demo.compare"
+title = "Demo: Compare two files"
+
+[[commands]]
+id = "demo.terminal"
+title = "Demo: top in a terminal view"
+
+[[commands]]
+id = "demo.widgets.mark"
+title = "Demo: Problems that name views"
+
+# Perspective: Gallery (Ctrl+P): the widgets; Properties and the Outline at the side;
+# Problems, Search and Tasks below.
+[[perspectives]]
+id = "gallery"
+title = "Gallery"
+main = ["demo.widgets", "demo.files"]
+side = ["properties", "outline"]
+bottom = ["problems", "search", "tasks"]
+side_size = 30

@@ -1,0 +1,6 @@
+# The demo as a product directory, for the launcher: myrcp --product examples/demo
+# (the same application as the myrcp-demo program, without a program of its own).
+[product]
+id = "myrcp-demo"
+name = "myrcp"
+plugins = ["plugins"]

@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "myrcp"
+version = "0.1.0"
+description = "Plugin SDK and plugin host of the myrcp terminal workbench"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Saku Rantamäki" }]
+# No dependencies on purpose: the SDK goes into every tool's own venv.
+dependencies = []
+
+[project.optional-dependencies]
+# pyte reads the workbench's screen in tests.
+test = ["pytest>=8", "pyte>=0.8"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["myrcp*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120

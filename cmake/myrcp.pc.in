@@ -1,0 +1,9 @@
+prefix=${pcfiledir}/../..
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: myrcp
+Description: A terminal-first rich client platform: rcp::run() in rcp/app.hpp
+Version: @PROJECT_VERSION@
+Libs: -L${libdir} -lmyrcp
+Cflags: -I${includedir} -std=c++20

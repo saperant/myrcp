@@ -1,0 +1,6 @@
+@PACKAGE_INIT@
+
+# find_package(myrcp): myrcp::myrcp (the terminal workbench), and myrcp::myrcp-gtk when
+# myrcp was built with it. An application links one and calls rcp::run() (rcp/app.hpp).
+include("${CMAKE_CURRENT_LIST_DIR}/myrcpTargets.cmake")
+check_required_components(myrcp)
