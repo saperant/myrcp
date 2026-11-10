@@ -1,0 +1,70 @@
+# The myrcp wheel: the plugin SDK (`import myrcp`) with the terminal workbench built in
+# (libmyrcp and its launcher under myrcp/_native), so `pip install myrcp` gives the
+# `myrcp` command and applications can depend on it. The GTK workbench is not in the
+# wheel; build it from source (-DMYRCP_GTK=ON).
+[build-system]
+requires = ["scikit-build-core>=0.10"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "myrcp"
+dynamic = ["version"]
+description = "A terminal-first rich client platform: a workbench for applications whose tools are Python plugins"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Saku Rantamäki" }]
+requires-python = ">=3.11"
+# No dependencies on purpose: the SDK goes into every application's own venv.
+dependencies = []
+keywords = ["rcp", "workbench", "tui", "terminal", "plugins", "neovim", "vim"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console :: Curses",
+  "Intended Audience :: Developers",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: C++",
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: User Interfaces",
+  "Topic :: Terminals",
+]
+
+[project.urls]
+Homepage = "https://github.com/saperant/myrcp"
+Source = "https://github.com/saperant/myrcp"
+Issues = "https://github.com/saperant/myrcp/issues"
+
+[project.scripts]
+myrcp = "myrcp.launch:main"
+
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+build-dir = "build-wheel/{wheel_tag}"
+# The native part does not depend on the Python version: one wheel per platform.
+wheel.py-api = "py3"
+wheel.packages = ["python/myrcp"]
+wheel.install-dir = "myrcp/_native"
+wheel.exclude = ["myrcp/_native/include/**", "myrcp/_native/lib/cmake/**", "myrcp/_native/lib/pkgconfig/**"]
+sdist.exclude = [".github", "build*", ".venv*", "**/__pycache__", "python/tests", "examples"]
+cmake.build-type = "Release"
+install.strip = true
+
+[tool.scikit-build.cmake.define]
+MYRCP_TESTS = "OFF"
+MYRCP_GTK = "OFF"
+MYRCP_DEMO = "OFF"
+CMAKE_INSTALL_LIBDIR = "lib"
+
+[tool.scikit-build.metadata.version]
+provider = "scikit_build_core.metadata.regex"
+input = "CMakeLists.txt"
+regex = 'project\(myrcp VERSION (?P<value>[0-9.]+)'
+
+[tool.cibuildwheel]
+build = "cp312-*"  # any one: the wheel is py3-none
+skip = "*-musllinux_*"
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
+# libvterm (terminal views) from source, bundled into the wheel by auditwheel.
+before-all = "sh {project}/tools/libvterm.sh"
+test-command = "python {project}/tools/wheel_smoke.py {project}"

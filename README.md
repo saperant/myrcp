@@ -13,6 +13,20 @@ regions, terminal views, and the Neovim and Vim links.
 
 Design, protocol and roadmap: [ARCHITECTURE.md](ARCHITECTURE.md).
 
+## Install
+
+```sh
+pipx install myrcp        # or pip install myrcp, in an application's venv
+myrcp --help
+```
+
+The wheel (Linux, x86_64 and aarch64) has the terminal workbench built in: the plugin
+SDK (`import myrcp`), `libmyrcp` and the `myrcp` command, which runs plugin hosts in the
+Python it was installed with. An application in Python depends on it (`myrcp>=0.9`, say
+as an extra) and starts its product directory with `myrcp.launch.run_product(dir)` from
+an entry point of its own. The GTK workbench, the C++ library for programs of their own
+(`find_package(myrcp)`) and other platforms come from building it from source.
+
 ## Build and run
 
 ```sh

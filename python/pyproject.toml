@@ -1,27 +1,11 @@
-[build-system]
-requires = ["setuptools>=77"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "myrcp"
-version = "0.9.0"
-description = "Plugin SDK and plugin host of the myrcp terminal workbench"
-requires-python = ">=3.11"
-license = "MIT"
-authors = [{ name = "Saku Rantamäki" }]
-# No dependencies on purpose: the SDK goes into every tool's own venv.
-dependencies = []
-
-[project.optional-dependencies]
-# pyte reads the workbench's screen in tests.
-test = ["pytest>=8", "pyte>=0.8"]
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["myrcp*"]
+# Settings for the SDK's tests and linting. The package itself is built from the
+# repository's root pyproject.toml (the myrcp wheel, with the workbench built in); the
+# tests import the SDK from here (pythonpath) and need pytest and pyte:
+#   uv venv && uv pip install pytest pyte     (./build.sh test does this)
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 120

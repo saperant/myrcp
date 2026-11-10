@@ -36,9 +36,9 @@ dev() {
 # The Python tests (SDK, plugin host, the demo application in a pty), in .venv (made with uv).
 python_tests() {
   if [ ! -x .venv/bin/pytest ]; then
-    command -v uv >/dev/null 2>&1 || { echo "build.sh: the Python tests need uv (or .venv with python[test])" >&2; exit 1; }
+    command -v uv >/dev/null 2>&1 || { echo "build.sh: the Python tests need uv (or .venv with pytest and pyte)" >&2; exit 1; }
     uv venv
-    uv pip install -e 'python[test]'
+    uv pip install pytest pyte
   fi
   (cd python && ../.venv/bin/pytest -q "$@")
 }

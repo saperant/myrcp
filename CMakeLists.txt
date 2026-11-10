@@ -66,7 +66,10 @@ endif()
 
 add_library(myrcp SHARED core/src/app.cpp core/src/terminal.cpp core/src/workbench.cpp)
 add_library(myrcp::myrcp ALIAS myrcp)
-set_target_properties(myrcp PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
+# A wheel (scikit-build-core sets SKBUILD) holds no symlinks: one file, libmyrcp.so.
+if(NOT SKBUILD)
+  set_target_properties(myrcp PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
+endif()
 target_include_directories(myrcp PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/core/include>
                                         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 target_link_libraries(myrcp PRIVATE $<BUILD_INTERFACE:rcp_editors>)

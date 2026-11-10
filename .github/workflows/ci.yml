@@ -42,7 +42,7 @@ jobs:
       - name: Python tests (the SDK, the demo in a pty, the GTK workbench under Xvfb)
         run: |
           python -m venv .venv
-          .venv/bin/pip install --quiet -e 'python[test]'
+          .venv/bin/pip install --quiet pytest pyte
           cd python && ../.venv/bin/pytest -q -rs
       - name: Release build and install
         run: |
